@@ -2,3 +2,5 @@
 node_modules
 package-lock.json
 package-lock.json 10-09-47-921 PM.json
+package.json
+yarn.lock
