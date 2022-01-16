@@ -8,21 +8,16 @@ export const AppTopbar = (props) => {
         <div className="layout-topbar">
             <Link to="/" className="layout-topbar-logo">
                 <img src={props.layoutColorMode === 'light' ? 'assets/layout/images/logo-dark.svg' : 'assets/layout/images/logo-white.svg'} alt="logo"/>
-                <span>SAKAI</span>
+                <span>Cavaquinho</span>
             </Link>
 
-                <ul className={classNames("layout-topbar-menu lg:flex origin-top", {'layout-topbar-menu-mobile-active': props.mobileTopbarMenuActive })}>
+
+                <ul className={classNames("layout-topbar-menu lg:flex origin-top")}>
                     <li>
-                        <button className="p-link layout-topbar-button" onClick={props.onMobileSubTopbarMenuClick}>
-                            <i className="pi pi-cog"/>
-                            <span>Settings</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button className="p-link layout-topbar-button" onClick={props.onMobileSubTopbarMenuClick}>
+                        <Link to="/cadastro" className="p-link layout-topbar-button">
                             <i className="pi pi-user"/>
                             <span>Profile</span>
-                        </button>
+                        </Link>
                     </li>
                 </ul>
         </div>

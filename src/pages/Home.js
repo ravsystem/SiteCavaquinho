@@ -16,7 +16,7 @@ import { ProductService } from '../service/ProductService';
 import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
 import { Checkbox } from 'primereact/checkbox';
 
-export const Crud = () => {
+export const Home = () => {
 
     let emptyProduct = {
         id: null,

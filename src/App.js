@@ -1,20 +1,23 @@
-import React, { useState, useEffect, useRef, Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { Route, useLocation } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 
 import { AppTopbar } from './AppTopbar';
 import { AppFooter } from './AppFooter';
 
+
+import { Home } from './pages/Home';
+import { Cadastro } from './pages/Cadastro/Cadastro';
+
 import PrimeReact from 'primereact/api';
 
-import 'primereact/resources/primereact.min.css';
+import 'primereact/resources/primereact.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import 'prismjs/themes/prism-coy.css';
-import './assets/layout/flags/flags.css';
-import './assets//layout/layout.scss';
+import './assets/layout/layout.scss';
 import './App.scss';
-import { Crud } from './pages/Crud';
 
 const App = () => {
 
@@ -26,6 +29,8 @@ const App = () => {
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
     const [mobileTopbarMenuActive, setMobileTopbarMenuActive] = useState(false);
+    const copyTooltipRef = useRef();
+    const location = useLocation();
 
     PrimeReact.ripple = true;
 
@@ -39,6 +44,27 @@ const App = () => {
             removeClass(document.body, "body-overflow-hidden");
         }
     }, [mobileMenuActive]);
+
+    useEffect(() => {
+        copyTooltipRef && copyTooltipRef.current && copyTooltipRef.current.updateTargetEvents();
+    }, [location]);
+
+    const onInputStyleChange = (inputStyle) => {
+        setInputStyle(inputStyle);
+    }
+
+    const onRipple = (e) => {
+        PrimeReact.ripple = e.value;
+        setRipple(e.value)
+    }
+
+    const onLayoutModeChange = (mode) => {
+        setLayoutMode(mode)
+    }
+
+    const onColorModeChange = (mode) => {
+        setLayoutColorMode(mode)
+    }
 
     const onWrapperClick = (event) => {
         if (!menuClick) {
@@ -77,6 +103,10 @@ const App = () => {
         event.preventDefault();
     }
 
+    const onSidebarClick = () => {
+        menuClick = true;
+    }
+
     const onMobileTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
 
@@ -84,6 +114,18 @@ const App = () => {
         event.preventDefault();
     }
 
+    const onMobileSubTopbarMenuClick = (event) => {
+        mobileTopbarMenuClick = true;
+
+        event.preventDefault();
+    }
+
+    const onMenuItemClick = (event) => {
+        if (!event.item.items) {
+            setOverlayMenuActive(false);
+            setMobileMenuActive(false);
+        }
+    }
     const isDesktop = () => {
         return window.innerWidth >= 992;
     }
@@ -102,33 +144,37 @@ const App = () => {
             element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
     }
 
-    const wrapperClass = classNames({
+    const wrapperClass = classNames( {
+        'layout-overlay': layoutMode === 'overlay',
         'layout-static': layoutMode === 'static',
         'layout-static-sidebar-inactive': staticMenuInactive && layoutMode === 'static',
+        'layout-overlay-sidebar-active': overlayMenuActive && layoutMode === 'overlay',
         'layout-mobile-sidebar-active': mobileMenuActive,
         'p-input-filled': inputStyle === 'filled',
-        'p-ripple-disabled': ripple === true,
+        'p-ripple-disabled': ripple === false,
         'layout-theme-light': layoutColorMode === 'light'
     });
 
     return (
         <div className={wrapperClass} onClick={onWrapperClick}>
 
-            <AppTopbar onToggleMenuClick={onToggleMenuClick} layoutColorMode={layoutColorMode}
-                mobileTopbarMenuActive={mobileTopbarMenuActive} onMobileTopbarMenuClick={onMobileTopbarMenuClick}s />
+        <AppTopbar onToggleMenuClick={onToggleMenuClick} layoutColorMode={layoutColorMode}
+            mobileTopbarMenuActive={mobileTopbarMenuActive} onMobileTopbarMenuClick={onMobileTopbarMenuClick} onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick} />
 
-            <div className="layout-main-container">
-                <div className="layout-main">
-                    <Crud></Crud>
-                </div>
-                <AppFooter layoutColorMode={layoutColorMode} />
+        <div className="layout-main-container">
+            <div className="layout-main">
+                <Route path="/" exact component={Home} />
+                <Route path="/Cadastro" component={Cadastro} />
             </div>
 
-            <CSSTransition classNames="layout-mask" timeout={{ enter: 200, exit: 200 }} in={mobileMenuActive} unmountOnExit>
-                <div className="layout-mask p-component-overlay"></div>
-            </CSSTransition>
-
+            <AppFooter layoutColorMode={layoutColorMode} />
         </div>
+
+        <CSSTransition classNames="layout-mask" timeout={{ enter: 200, exit: 200 }} in={mobileMenuActive} unmountOnExit>
+            <div className="layout-mask p-component-overlay"></div>
+        </CSSTransition>
+
+    </div>
     );
 
 }
