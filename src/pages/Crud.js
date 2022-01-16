@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { DataTable } from 'primereact/datatable';
+
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
@@ -13,6 +13,8 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { ProductService } from '../service/ProductService';
+import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
+import { Checkbox } from 'primereact/checkbox';
 
 export const Crud = () => {
 
@@ -39,14 +41,29 @@ export const Crud = () => {
     const toast = useRef(null);
     const dt = useRef(null);
 
+    const listValue = [
+        { name: 'San Francisco', code: 'SF' },
+        { name: 'London', code: 'LDN' },
+        { name: 'Paris', code: 'PRS' },
+        { name: 'Istanbul', code: 'IST' },
+        { name: 'Berlin', code: 'BRL' },
+        { name: 'Barcelona', code: 'BRC' },
+        { name: 'Rome', code: 'RM' },
+    ];
+
+    const [picklistSourceValue, setPicklistSourceValue] = useState(listValue);
+    const [picklistTargetValue, setPicklistTargetValue] = useState([]);
+    const [orderlistValue, setOrderlistValue] = useState(listValue);
+    const [dataviewValue, setDataviewValue] = useState(null);
+    const [layout, setLayout] = useState('grid');
+    const [sortKey, setSortKey] = useState(null);
+    const [sortOrder, setSortOrder] = useState(null);
+    const [sortField, setSortField] = useState(null);
+
     useEffect(() => {
         const productService = new ProductService();
         productService.getProducts().then(data => setProducts(data));
     }, []);
-
-    const formatCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    }
 
     const openNew = () => {
         setProduct(emptyProduct);
@@ -189,88 +206,6 @@ export const Crud = () => {
         )
     }
 
-    const codeBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Code</span>
-                {rowData.code}
-            </>
-        );
-    }
-
-    const nameBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Name</span>
-                {rowData.name}
-            </>
-        );
-    }
-
-    const imageBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Image</span>
-                <img src={`assets/demo/images/product/${rowData.image}`} alt={rowData.image} className="shadow-2" width="100" />
-            </>
-        )
-    }
-
-    const priceBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Price</span>
-                {formatCurrency(rowData.price)}
-            </>
-        );
-    }
-
-    const categoryBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Category</span>
-                {rowData.category}
-            </>
-        );
-    }
-
-    const ratingBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Reviews</span>
-                <Rating value={rowData.rating} readonly cancel={false} />
-            </>
-        );
-    }
-
-    const statusBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Status</span>
-                <span className={`product-badge status-${rowData.inventoryStatus.toLowerCase()}`}>{rowData.inventoryStatus}</span>
-            </>
-        )
-    }
-
-    const actionBodyTemplate = (rowData) => {
-        return (
-            <div className="actions">
-                <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(rowData)} />
-            </div>
-        );
-    }
-
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Manage Products</h5>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-            </span>
-        </div>
-    );
-
     const productDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} />
@@ -290,6 +225,90 @@ export const Crud = () => {
         </>
     );
 
+    const dataviewHeader = (
+        <div className="grid grid-nogutter">
+            <div className="col-6" style={{ textAlign: 'left' }}>
+            <span className="block mt-2 md:mt-0 p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+            </span>
+            </div>
+            <div className="col-6" style={{ textAlign: 'right' }}>
+                <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />
+            </div>
+        </div>
+    );
+
+    const dataviewListItem = (data) => {
+        return (
+            <div className="col-12">
+                <div className="flex flex-column md:flex-row align-items-center p-3 w-full">
+                    <Checkbox ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}/>
+                    <img header="Foto" src={`assets/demo/images/product/${data.image}`} alt={data.name} className="my-4 md:my-0 w-9 md:w-10rem shadow-2 mr-5" />
+                    <div className="flex-1 text-center md:text-left">
+                    
+                        <div className="font-bold text-2xl">{data.name}</div>
+                        <div className="mb-3">{data.description}</div>
+                        <Rating value={data.rating} readonly cancel={false} className="mb-2"></Rating>
+                        <div className="flex align-items-center">
+                            <i className="pi pi-tag mr-2"></i> 
+                            <span className="font-semibold">{data.category}</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+                        <div className="actions">
+                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editProduct(data)} />
+                            <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(data)} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const dataviewGridItem = (data) => {
+        return (
+            <div className="col-12 md:col-4">
+                <div className="card m-3 border-1 surface-border" ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}>
+                    <div className="flex align-items-center justify-content-between">
+                        <div className="flex align-items-center">
+                        <Checkbox ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}/>
+                            <i className="pi pi-tag mr-2" />
+                            <span className="font-semibold">{data.category}</span>
+                        </div>
+                        <span className={`product-badge status-${data.inventoryStatus.toLowerCase()}`}>{data.inventoryStatus}</span>
+                    </div>
+                    <div className="text-center">
+                        <img src={`assets/demo/images/product/${data.image}`} alt={data.name} className="w-9 shadow-2 my-3 mx-0" />
+                        <div className="text-2xl font-bold">{data.name}</div>
+                        <div className="mb-3">{data.description}</div>
+                        <Rating value={data.rating} readonly cancel={false} />
+                    </div>
+                    <div className="flex align-items-center justify-content-between">
+                        <div className="actions">
+                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editProduct(data)} />
+                            <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(data)} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const itemTemplate = (data, layout) => {
+        if (!data) {
+            return;
+        }
+
+        if (layout === 'list') {
+            return dataviewListItem(data);
+        }
+        else if (layout === 'grid') {
+            return dataviewGridItem(data);
+        }
+    };
+
+
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -297,21 +316,11 @@ export const Crud = () => {
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
 
-                    <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
-                        dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                        globalFilter={globalFilter} emptyMessage="No products found." header={header} responsiveLayout="scroll">
-                        <Column selectionMode="multiple" headerStyle={{ width: '3rem'}}></Column>
-                        <Column field="code" header="Code" sortable body={codeBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="name" header="Name" sortable body={nameBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column header="Image" body={imageBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="price" header="Price" body={priceBodyTemplate} sortable headerStyle={{ width: '14%', minWidth: '8rem' }}></Column>
-                        <Column field="category" header="Category" sortable body={categoryBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="rating" header="Reviews" body={ratingBodyTemplate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="inventoryStatus" header="Status" body={statusBodyTemplate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column body={actionBodyTemplate}></Column>
-                    </DataTable>
+                    <DataView ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
+                        dataKey="id" paginator rows={9} layout={layout} className="datatable-responsive"
+                        globalFilter={globalFilter} emptyMessage="não foi encontrado o musico."
+                        header={dataviewHeader} responsiveLayout="scroll" sortOrder={sortOrder} sortField={sortField} itemTemplate={itemTemplate}>
+                    </DataView >
 
                     <Dialog visible={productDialog} style={{ width: '450px' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                         {product.image && <img src={`assets/demo/images/product/${product.image}`} alt={product.image} width="150" className="mt-0 mx-auto mb-5 block shadow-2" />}
@@ -362,14 +371,14 @@ export const Crud = () => {
                     <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {product && <span>Are you sure you want to delete <b>{product.name}</b>?</span>}
+                            {product && <span>Voce tem certeza que deseja deletar este item? <b>{product.name}</b>?</span>}
                         </div>
                     </Dialog>
 
                     <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {product && <span>Are you sure you want to delete the selected products?</span>}
+                            {product && <span>Voce tem certeza que deseja deletar estes itens selecionados?</span>}
                         </div>
                     </Dialog>
                 </div>
