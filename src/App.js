@@ -49,23 +49,6 @@ const App = () => {
         copyTooltipRef && copyTooltipRef.current && copyTooltipRef.current.updateTargetEvents();
     }, [location]);
 
-    const onInputStyleChange = (inputStyle) => {
-        setInputStyle(inputStyle);
-    }
-
-    const onRipple = (e) => {
-        PrimeReact.ripple = e.value;
-        setRipple(e.value)
-    }
-
-    const onLayoutModeChange = (mode) => {
-        setLayoutMode(mode)
-    }
-
-    const onColorModeChange = (mode) => {
-        setLayoutColorMode(mode)
-    }
-
     const onWrapperClick = (event) => {
         if (!menuClick) {
             setOverlayMenuActive(false);
@@ -103,10 +86,6 @@ const App = () => {
         event.preventDefault();
     }
 
-    const onSidebarClick = () => {
-        menuClick = true;
-    }
-
     const onMobileTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
 
@@ -120,12 +99,6 @@ const App = () => {
         event.preventDefault();
     }
 
-    const onMenuItemClick = (event) => {
-        if (!event.item.items) {
-            setOverlayMenuActive(false);
-            setMobileMenuActive(false);
-        }
-    }
     const isDesktop = () => {
         return window.innerWidth >= 992;
     }
