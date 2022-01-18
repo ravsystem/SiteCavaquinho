@@ -9,6 +9,7 @@ import { AppFooter } from './AppFooter';
 
 import { Home } from './pages/Home';
 import { Cadastro } from './pages/Cadastro/Cadastro';
+import LoginPage from './pages/LoginPages/login';
 
 import PrimeReact from 'primereact/api';
 
@@ -138,6 +139,7 @@ const App = () => {
             <div className="layout-main">
                 <Route path="/" exact component={Home} />
                 <Route path="/Cadastro" component={Cadastro} />
+                <LoginPage />   
             </div>
 
             <AppFooter layoutColorMode={layoutColorMode} />
