@@ -118,19 +118,8 @@ const App = () => {
             element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
     }
 
-    const wrapperClass = classNames( {
-        'layout-overlay': layoutMode === 'overlay',
-        'layout-static': layoutMode === 'static',
-        'layout-static-sidebar-inactive': staticMenuInactive && layoutMode === 'static',
-        'layout-overlay-sidebar-active': overlayMenuActive && layoutMode === 'overlay',
-        'layout-mobile-sidebar-active': mobileMenuActive,
-        'p-input-filled': inputStyle === 'filled',
-        'p-ripple-disabled': ripple === false,
-        'layout-theme-light': layoutColorMode === 'light'
-    });
-
     return (
-        <div className={wrapperClass} onClick={onWrapperClick}>
+        <div onClick={onWrapperClick}>
 
         <AppTopbar onToggleMenuClick={onToggleMenuClick} layoutColorMode={layoutColorMode}
             mobileTopbarMenuActive={mobileTopbarMenuActive} onMobileTopbarMenuClick={onMobileTopbarMenuClick} onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick} />
