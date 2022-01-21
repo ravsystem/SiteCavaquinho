@@ -1,30 +1,14 @@
-const express = require("express");
-const db = require("./database/config");
-const mongoose = require("mongoose");
+const express = require('express');
+const bodyParser = require('body-parser');
 
-class App {
-  constructor() {
-    this.express = express();
+const app = express();
 
-    this.database();
-    this.middlewares();
-    this.routes();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-    this.express.listen(3001, () =>
-      console.log(`Sua API REST está funcionando na porta 3001 `)
-    );
-  }
+require('./app/controller/authController')(app);
+require('./app/controller/projectController')(app);
 
-  database() {
-    mongoose.connect(db.uri, { useNewUrlParser: true });
-  }
+app.use(require('./routes'));
 
-  middlewares() {
-    this.express.use(express.json());
-  }
-
-  routes() {
-    this.express.use(require("./routes"));
-  }
-}
-module.exports = new App().express;
+app.listen(3030);
